@@ -1,0 +1,33 @@
+.title-bar {
+    background-color: #282c34;
+    padding: 10px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+}
+
+.title-bar-left {
+    display: flex;
+    align-items: center;
+}
+
+.title-bar-left h1 {
+    margin: 0;
+}
+
+.title-bar-right {
+    display: flex;
+    align-items: center;
+}
+
+.title-bar-right button {
+    padding: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #61dafb;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
