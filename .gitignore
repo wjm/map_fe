@@ -13,6 +13,7 @@
 /.next/
 /out/
 /dist/
+/.vscode/
 
 # production
 /build
@@ -36,5 +37,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-.vscode
