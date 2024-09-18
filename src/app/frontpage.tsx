@@ -26,7 +26,7 @@ export default function Info() {
             }
 
             try {
-                console.log(JSON.stringify({ user_id: session.user?.id }));
+                // console.log(JSON.stringify({ user_id: session.user?.id }));
                 const response = await fetch(`/api/mapapi/map/get`, {
                     method: 'POST',
                     headers: {
@@ -44,7 +44,7 @@ export default function Info() {
                 const fetchedMaps: MapResInfo = await response.json();
                 setUserMaps(fetchedMaps.maps.user);
                 setSharedMaps(fetchedMaps.maps.shared);
-                console.log('Fetched maps:', fetchedMaps.maps);
+                // console.log('Fetched maps:', fetchedMaps.maps);
             } catch (error) {
                 console.error('Error fetching map info:', error);
             } finally {
@@ -52,7 +52,7 @@ export default function Info() {
             }
         };
         if (session) {
-            console.log('Fetching map info', session);
+            // console.log('Fetching map info', session);
             setIsJoined(session.user?.companyId !== null);
             fetchMapInfo();
         }

@@ -20,7 +20,7 @@ import type {MapRef} from 'react-map-gl';
 
 
 export default function MapDraw({ session, TOKEN, mapId }: { session: Session | null, TOKEN: string, mapId: string }) {
-  console.log("MapDraw session: ", session);
+  // console.log("MapDraw session: ", session);
   const [cliendId] = useState<string>(uuidv4());
   const [features, setFeatures] = useState<{ [key: string]: DrawFeature }>({});
   const [fetchFeatures, setFetchFeatures] = useState<FeatureCollection>();
@@ -86,7 +86,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       const client = new Client({
         brokerURL: '/api/ws',
         onConnect: () => {
-          console.log('Connected to STOMP server');
+          // console.log('Connected to STOMP server');
 
           // Subscribe to the map channel dynamically using the map ID (mapId)
           client.subscribe(`/map/${mapId}`, (message) => {
@@ -102,15 +102,15 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
                 Object.values(receivedData.data).forEach((feature) => {
                   drawControlRef.current?.add(feature as FeatureCollection);
                 });
-                console.log("Received and added features: ", receivedData);
+                // console.log("Received and added features: ", receivedData);
               } else if (receivedData.type === 'delete') {
                 Object.values(receivedData.data).forEach((feature) => {
                   drawControlRef.current?.delete((feature as Feature).id as string);
                 });
-                console.log("Received and deleted features: ", receivedData);
+                // console.log("Received and deleted features: ", receivedData);
               } else if (receivedData.type === 'selectionchange') {
                 lockFeaturesRef.current?.set(receivedData.user, receivedData.data.map((feature: { id: string; }) => feature.id));
-                console.log("Received selection change, lock: ", receivedData);
+                // console.log("Received selection change, lock: ", receivedData);
               } else if (receivedData.type === 'leave') {
                 const leaveUser = receivedData.user;
                 lockFeaturesRef.current?.delete(leaveUser);
@@ -122,7 +122,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
                   ...prevCursors,
                   [messageClient]: [username,lnglat], // Store cursor position in map with userId as key
                 }));
-                console.log("Received mouse move: ", receivedData.data);
+                // console.log("Received mouse move: ", receivedData.data);
               }
             }
           });
@@ -141,7 +141,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
     return () => {
       if (clientRef.current) {
         clientRef.current.deactivate();
-        console.log('Disconnected from STOMP server');
+        // console.log('Disconnected from STOMP server');
       }
     };
   }, [mapId, drawControlRef, lockFeaturesRef, cliendId, session, router]);
@@ -176,7 +176,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
   }, [mapId, sync]);
 
   const onUpdate = useCallback((e: { features: object[] }) => {
-    console.log("updated");
+    // console.log("updated");
     setFeatures((currFeatures) => {
       const newFeatures = { ...currFeatures };
       //wsSend('update', e.features);
@@ -200,7 +200,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
     sync('delete', mapId, e.features);
   }, [mapId, sync]);
   const onSelect = useCallback((e: { features: object[] }) => {
-    console.log("Selected features: ", e.features);
+    // console.log("Selected features: ", e.features);
     const eventFeatures = e.features as DrawFeature[];
     const featuresArray: Array<Array<string>> = lockFeaturesRef.current ? Array.from(lockFeaturesRef.current.values()) : [];
     const selecableFeatureIds = eventFeatures.filter(
@@ -211,7 +211,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
     ).map((feature: DrawFeature) => feature.id);
     //drawControlRef.current?.changeMode('simple_select', { featureIds: [] });
     if (drawControlRef.current) {
-      console.log("Changing mode to simple_select with features: ", selecableFeatureIds);
+      // console.log("Changing mode to simple_select with features: ", selecableFeatureIds);
       drawControlRef.current?.changeMode('simple_select', { featureIds: selecableFeatureIds as string[] });
     }
     if (unselecableFeatureIds.length > 0) {
@@ -299,7 +299,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
         onMouseMove={handleMouseMove}
       >
          {Object.entries(cursors).map(([userId, [username, lngLat]]) => {
-          console.log("Cursor: ", userId, lngLat);
+          // console.log("Cursor: ", userId, lngLat);
           if (!mapRef.current) return null;
         const map = mapRef.current?.getMap();
         const screenPos = map?.project([lngLat.lng, lngLat.lat]);
