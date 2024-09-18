@@ -84,7 +84,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
     // Only initialize the client if it doesn't already exist
     if (!clientRef.current || !clientRef.current.connected) {
       const client = new Client({
-        brokerURL: 'ws://localhost:8080/ws',
+        brokerURL: '/api/ws',
         onConnect: () => {
           console.log('Connected to STOMP server');
 
@@ -115,8 +115,9 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
                 const leaveUser = receivedData.user;
                 lockFeaturesRef.current?.delete(leaveUser);
               } else if (receivedData.type === 'mousemove') {
-                const username = receivedData.data.username;
-                const lnglat = receivedData.data.lnglat;
+                const mouseMoveData = receivedData.data[0];
+                const username = mouseMoveData.username;
+                const lnglat = mouseMoveData.lnglat;
                 setCursors((prevCursors) => ({
                   ...prevCursors,
                   [messageClient]: [username,lnglat], // Store cursor position in map with userId as key
@@ -143,9 +144,9 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
         console.log('Disconnected from STOMP server');
       }
     };
-  }, [mapId, drawControlRef, lockFeaturesRef, cliendId, session]);
+  }, [mapId, drawControlRef, lockFeaturesRef, cliendId, session, router]);
 
-  function sync(action: string, mapId: string, data: unknown) {
+  const sync = useCallback((action: string, mapId: string, data: unknown) => {
     if (!clientRef.current || !clientRef.current.connected) {
       return;
     }
@@ -160,7 +161,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       default:
         break;
     }
-  }
+  }, [clientRef, cliendId]);
 
   const onCreate = useCallback((e: { features: object[] }) => {
     setFeatures((currFeatures) => {
@@ -172,7 +173,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       return newFeatures;
     });
     sync('create', mapId, e.features);
-  }, []);
+  }, [mapId, sync]);
 
   const onUpdate = useCallback((e: { features: object[] }) => {
     console.log("updated");
@@ -185,7 +186,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       return newFeatures;
     });
     sync('update', mapId, e.features);
-  }, []);
+  }, [mapId, sync]);
 
   const onDelete = useCallback((e: { features: object[] }) => {
     setFeatures(currFeatures => {
@@ -197,7 +198,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       return newFeatures;
     });
     sync('delete', mapId, e.features);
-  }, [mapId]);
+  }, [mapId, sync]);
   const onSelect = useCallback((e: { features: object[] }) => {
     console.log("Selected features: ", e.features);
     const eventFeatures = e.features as DrawFeature[];
@@ -219,7 +220,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
 
     //wsSend('selectionchange', e.features);
     sync('selectionchange', mapId, e.features);
-  }, [mapId]);
+  }, [mapId, sync]);
   useEffect(() => {
     // Handle WebSocket message and add features to the map
     // ws.onopen = () => {
@@ -278,10 +279,10 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [mapId]);
+  }, [mapId, sync]);
   const handleMouseMove = (e: MapMouseEvent) => {
-    sync('mousemove', mapId, {username: session?.user.email, lnglat: e.lngLat});
-    console.log(e.lngLat);
+    sync('mousemove', mapId, [{username: session?.user.email, lnglat: e.lngLat}]);
+    //console.log(e.lngLat);
   };
 
   return (

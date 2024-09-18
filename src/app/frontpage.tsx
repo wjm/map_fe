@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 
 
 export default function Info() {
-    const { data:session, status, update} = useSession();
+    const { data:session, update} = useSession();
     const [userMaps, setUserMaps] = useState<MapInfo[]>([]);
     const [sharedMaps, setSharedMaps] = useState<MapInfo[]>([]);
     const [loading, setLoading] = useState(true);

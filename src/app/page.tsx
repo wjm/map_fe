@@ -1,5 +1,4 @@
 import TitleBar from "@/app/components/TitleBar/TitleBar";
-import { auth } from '@/app/auth';
 import Info from "./frontpage";
 import { SessionProvider } from "next-auth/react";
 
