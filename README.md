@@ -24,5 +24,12 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 docker build -t NAME .
 ```
 
+## structure
+
+ - /  Root/Dashboard
+     - /map/{uuid} map
+     - /login Login Page
+     - /register Register Page
+
 
 
