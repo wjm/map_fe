@@ -5,7 +5,7 @@ const nextConfig = {
         return [
             {
                 source: "/api/ws",
-                destination: "http://127.0.0.1:8080/ws",
+                destination: process.env.WS_URL,
             },
         ];
     }
