@@ -11,6 +11,7 @@ export default async function Button() {
       }}
       >
         <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ marginRight: '12px' }}>{session.user?.companyId || ''}</div>
           <div style={{ marginRight: '12px' }}>{session.user?.email}</div>
           <button>Sign Out</button>
         </div>

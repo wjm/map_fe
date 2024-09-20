@@ -109,11 +109,22 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
                 });
                 // console.log("Received and deleted features: ", receivedData);
               } else if (receivedData.type === 'selectionchange') {
-                lockFeaturesRef.current?.set(receivedData.user, receivedData.data.map((feature: { id: string; }) => feature.id));
+                lockFeaturesRef.current?.set(messageClient, receivedData.data.map((feature: { id: string; }) => feature.id));
                 // console.log("Received selection change, lock: ", receivedData);
               } else if (receivedData.type === 'leave') {
-                const leaveUser = receivedData.user;
+                const leaveUser = messageClient;
                 lockFeaturesRef.current?.delete(leaveUser);
+                setCursors((prevCursors) => {
+                  return Object.keys(prevCursors).reduce((newCursors, key) => {
+                    if (key !== leaveUser) {
+                      const cursor = prevCursors.get(key);
+                      if (cursor) {
+                        newCursors.set(key, cursor);
+                      }
+                    }
+                    return newCursors;
+                  }, new Map<string, [string, LngLat]>());
+                });
               } else if (receivedData.type === 'mousemove') {
                 const mouseMoveData = receivedData.data[0];
                 const username = mouseMoveData.username;
@@ -156,6 +167,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       case 'delete':
       case 'selectionchange':
       case 'mousemove':
+      case 'leave':
         clientRef.current.publish({ destination: `/map/${mapId}`, body: JSON.stringify({ type: action, data: data }), headers: { 'client-id': cliendId } });
         break;
       default:
@@ -269,6 +281,7 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       // }
       if (clientRef.current?.connected) {
         sync('selectionchange', mapId, []);
+        sync('leave', mapId, []);
         clientRef.current.unsubscribe(`/map/${mapId}`);
       }
       event.returnValue = '';

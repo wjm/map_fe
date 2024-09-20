@@ -59,10 +59,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Custom server
 COPY --from=builder --chown=nextjs:nodejs /app/dist/server.js ./server.js
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/next ./node_modules/next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/http-proxy ./node_modules/http-proxy
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/eventemitter3 ./node_modules/eventemitter3
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/follow-redirects ./node_modules/follow-redirects
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/requires-port ./node_modules/requires-port
+# Custom server dependencies
+#COPY --from=builder --chown=nextjs:nodejs /app/node_modules/http-proxy ./node_modules/http-proxy
+#COPY --from=builder --chown=nextjs:nodejs /app/node_modules/eventemitter3 ./node_modules/eventemitter3
+#COPY --from=builder --chown=nextjs:nodejs /app/node_modules/follow-redirects ./node_modules/follow-redirects
+#COPY --from=builder --chown=nextjs:nodejs /app/node_modules/requires-port ./node_modules/requires-port
 # COPY --from=builder --chown=nextjs:nodejs /app/src/views ./src/views
 
 USER nextjs
