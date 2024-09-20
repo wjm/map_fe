@@ -228,15 +228,16 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
       (feature: DrawFeature) => featuresArray.some((lockedList) => lockedList.includes(feature.id as string))
     ).map((feature: DrawFeature) => feature.id);
     //drawControlRef.current?.changeMode('simple_select', { featureIds: [] });
-    if (drawControlRef.current) {
-      // console.log("Changing mode to simple_select with features: ", selecableFeatureIds);
-      drawControlRef.current?.changeMode('simple_select', { featureIds: selecableFeatureIds as string[] });
-    }
     if (unselecableFeatureIds.length > 0) {
+      // console.log(selecableFeatureIds);
       alert("Selected feature is currently locked by another user");
+      if (drawControlRef.current && selecableFeatureIds.length > 0) {
+        // console.log("Changing mode to simple_select with features: ", selecableFeatureIds);
+        drawControlRef.current?.changeMode('simple_select', { featureIds: selecableFeatureIds as string[] });
+      }
     }
 
-    //wsSend('selectionchange', e.features);
+    // //wsSend('selectionchange', e.features);
     sync('selectionchange', mapId, e.features);
   }, [mapId, sync]);
   useEffect(() => {
