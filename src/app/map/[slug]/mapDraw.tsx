@@ -31,6 +31,23 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
   const router = useRouter()
   const mapRef = useRef<MapRef>();
   typeof (features); // avoid lint error
+  const sync = useCallback((action: string, mapId: string, data: unknown) => {
+    if (!clientRef.current || !clientRef.current.connected) {
+      return;
+    }
+    switch (action) {
+      case 'create':
+      case 'update':
+      case 'delete':
+      case 'selectionchange':
+      case 'mousemove':
+      case 'leave':
+        clientRef.current.publish({ destination: `/map/${mapId}`, body: JSON.stringify({ type: action, data: data }), headers: { 'client-id': cliendId } });
+        break;
+      default:
+        break;
+    }
+  }, [clientRef, cliendId]);
   useEffect(() => {
     const fetchMapInfo = async (mapId: string) => {
       if (!session) {
@@ -151,29 +168,18 @@ export default function MapDraw({ session, TOKEN, mapId }: { session: Session | 
     // Cleanup
     return () => {
       if (clientRef.current) {
+        sync('selectionchange', mapId, []);
+        sync('leave', mapId, []);
+        if (clientRef.current.connected) {
+          clientRef.current.unsubscribe(`/map/${mapId}`);
+        }
         clientRef.current.deactivate();
         // console.log('Disconnected from STOMP server');
       }
     };
-  }, [mapId, drawControlRef, lockFeaturesRef, cliendId, session, router]);
+  }, [mapId, drawControlRef, lockFeaturesRef, cliendId, session, router, sync]);
 
-  const sync = useCallback((action: string, mapId: string, data: unknown) => {
-    if (!clientRef.current || !clientRef.current.connected) {
-      return;
-    }
-    switch (action) {
-      case 'create':
-      case 'update':
-      case 'delete':
-      case 'selectionchange':
-      case 'mousemove':
-      case 'leave':
-        clientRef.current.publish({ destination: `/map/${mapId}`, body: JSON.stringify({ type: action, data: data }), headers: { 'client-id': cliendId } });
-        break;
-      default:
-        break;
-    }
-  }, [clientRef, cliendId]);
+  
 
   const onCreate = useCallback((e: { features: object[] }) => {
     setFeatures((currFeatures) => {
